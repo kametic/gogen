@@ -10,10 +10,12 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-	"golang.org/x/tools/go/ast/astutil"
 	"io/ioutil"
 	"os"
 	"path"
+	"strings"
+
+	"golang.org/x/tools/go/ast/astutil"
 )
 
 type Options struct {
@@ -37,10 +39,9 @@ func Process(pkg, outdir string, newType string, optset ...func(*Options)) error
 	}
 
 	if outdir == "" {
-		outdir = path.Base(pkg)
-	}
-
-	if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
+		// outdir = path.Base(pkg)
+		outdir = "."
+	} else if err := os.MkdirAll(outdir, os.ModePerm); err != nil {
 		return err
 	}
 
@@ -51,7 +52,7 @@ func Process(pkg, outdir string, newType string, optset ...func(*Options)) error
 		return err
 	}
 
-	if err := write(outdir, files); err != nil {
+	if err := write(outdir, newType, files); err != nil {
 		return err
 	}
 
@@ -64,7 +65,7 @@ func Process(pkg, outdir string, newType string, optset ...func(*Options)) error
 		return err
 	}
 
-	return write(outdir, files)
+	return write(outdir, newType, files)
 }
 
 func processFiles(p Package, files []string, t targetType) ([]processedFile, error) {
@@ -157,9 +158,9 @@ func (fn visitFn) Visit(node ast.Node) ast.Visitor {
 	return fn
 }
 
-func write(outdir string, files []processedFile) error {
+func write(outdir, prefix, string, files []processedFile) error {
 	for _, f := range files {
-		out, err := os.Create(path.Join(outdir, f.filename))
+		out, err := os.Create(path.Join(outdir, strings.ToLower(prefix), f.filename))
 		if err != nil {
 			return FileError{Package: outdir, File: f.filename, Err: err}
 		}
