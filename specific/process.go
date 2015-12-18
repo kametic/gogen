@@ -158,7 +158,7 @@ func (fn visitFn) Visit(node ast.Node) ast.Visitor {
 	return fn
 }
 
-func write(outdir prefix, string, files []processedFile) error {
+func write(outdir string, prefix string, files []processedFile) error {
 	for _, f := range files {
 		out, err := os.Create(path.Join(outdir, strings.ToLower(prefix), f.filename))
 		if err != nil {
