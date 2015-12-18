@@ -160,7 +160,7 @@ func (fn visitFn) Visit(node ast.Node) ast.Visitor {
 
 func write(outdir string, prefix string, files []processedFile) error {
 	for _, f := range files {
-		out, err := os.Create(path.Join(outdir, strings.ToLower(prefix), f.filename))
+		out, err := os.Create(path.Join(outdir, strings.Join([]string{strings.ToLower(prefix), f.filename}, "_")))
 		if err != nil {
 			return FileError{Package: outdir, File: f.filename, Err: err}
 		}
